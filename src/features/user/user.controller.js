@@ -1,10 +1,15 @@
 import UserModel from "./user.model.js";
 import jwt from "jsonwebtoken";
+import UserRepo from "./user.repository.js";
 export default class UserController {
+  constructor() {
+    this.userRepo = new UserRepo();
+  }
   async signUp(req, res) {
     try {
       const { name, email, password } = req.body;
-      const newUser = await UserModel.register(name, email, password);
+      const newUser = new UserModel(name, email, password);
+      await this.userRepo.register(newUser);
       return res
         .status(201)
         .send({ msg: "user added successfully", newUser: newUser });
@@ -12,10 +17,10 @@ export default class UserController {
       console.error("Error", err);
     }
   }
-  signIn(req, res) {
+  async signIn(req, res) {
     try {
       const { email, password } = req.body;
-      const user = UserModel.login(email, password);
+      const user = await this.userRepo.login(email, password);
       if (!user) {
         return res.status(404).send({ msg: "user not found" });
       } else {
@@ -31,9 +36,9 @@ export default class UserController {
       console.error("Error:", err);
     }
   }
-  getUsers(req, res) {
+  async getUsers(req, res) {
     try {
-      let users = UserModel.getAll();
+      let users = await this.userRepo.get();
       return res.status(200).send(users);
     } catch (err) {
       console.error("Error:", err);
