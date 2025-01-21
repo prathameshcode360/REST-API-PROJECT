@@ -7,7 +7,7 @@ const app = express();
 
 app.use(bodyParser.json());
 
-app.use("/api/products/", jswtAuth, productRouter);
+app.use("/api/products/", productRouter);
 app.use("/api/users/", userRouter);
 
 app.get("/", (req, res) => {
