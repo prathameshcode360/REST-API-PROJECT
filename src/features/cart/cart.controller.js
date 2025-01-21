@@ -22,4 +22,10 @@ export default class CartController {
       console.error("Error:", err);
     }
   }
+  deleteItem(req, res) {
+    const userId = req.userId;
+    const itemId = req.params.itemId;
+    const result = CartModel.delete(itemId, userId);
+    return res.send(result);
+  }
 }
