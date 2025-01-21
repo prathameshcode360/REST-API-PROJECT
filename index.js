@@ -1,4 +1,5 @@
 import express from "express";
+import { connectDB } from "./src/config/mongodb.js";
 import bodyParser from "body-parser";
 import productRouter from "./src/features/product/product.routes.js";
 import userRouter from "./src/features/user/user.routes.js";
@@ -14,6 +15,7 @@ app.use("/api/users/", userRouter);
 
 app.get("/", (req, res) => {
   res.send("Welcome to Express Server");
+  connectDB();
 });
 
 app.listen(4000, () => {
