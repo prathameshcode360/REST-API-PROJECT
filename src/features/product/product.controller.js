@@ -1,19 +1,28 @@
-import ProductModel from "./product.model.js";
+import ProductRepo from "./product.repository.js";
 
 export default class ProductController {
-  getAllProducts(req, res) {
+  constructor() {
+    this.productRepo = new ProductRepo();
+  }
+
+  async getAllProducts(req, res) {
     try {
-      let products = ProductModel.getAll();
+      let products = await this.productRepo.getAll();
       return res.status(200).send(products);
     } catch (err) {
       console.error("Error:", err);
     }
   }
-  addProduct(req, res) {
+  async addProduct(req, res) {
     try {
-      const { name, price } = req.body;
+      const { name, price, category } = req.body;
       const image = req.file.filename;
-      const newProduct = ProductModel.add(name, price, image);
+      const newProduct = await this.productRepo.add(
+        name,
+        Number(price),
+        image,
+        category
+      );
       return res.status(201).send({
         msg: "Product added successfully",
         product: newProduct,
@@ -22,10 +31,10 @@ export default class ProductController {
       console.error("Error:", err);
     }
   }
-  getOneProduct(req, res) {
+  async getOneProduct(req, res) {
     try {
-      const id = req.params.id;
-      const product = ProductModel.get(id);
+      const _id = req.params._id;
+      const product = await this.productRepo.getOne(_id);
       if (!product) {
         return res.status(404).send({
           msg: "Product not found",
@@ -40,12 +49,12 @@ export default class ProductController {
       console.error("Error:", err);
     }
   }
-  filterProducts(req, res) {
+  async filterProducts(req, res) {
     try {
-      const minPrice = req.query.minPrice;
-      const maxPrice = req.query.maxPrice;
-
-      let result = ProductModel.filter(minPrice, maxPrice);
+      const minPrice = Number(req.query.minPrice);
+      const maxPrice = Number(req.query.maxPrice);
+      const category = req.query.category;
+      let result = await this.productRepo.filter(minPrice, maxPrice, category);
       if (result.length === 0) {
         return res.status(404).send({
           msg: "No products found",
