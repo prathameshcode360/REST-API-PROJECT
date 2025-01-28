@@ -1,25 +1,29 @@
+import ProductRepo from "./product.repo.js";
 import ProductModel from "./product.model.js";
 
 export default class ProductController {
-  getAllProducts(req, res) {
+  constructor() {
+    this.productRepo = new ProductRepo();
+  }
+  async getAllProducts(req, res) {
     try {
-      let products = ProductModel.getAll();
+      let products = await this.productRepo.getAll();
       return res.status(200).send(products);
     } catch (err) {
       console.error("Error:", err);
     }
   }
-  addProduct(req, res) {
+  async addProduct(req, res) {
     try {
       const { name, price } = req.body;
       const image = req.file.filename;
-      const newProduct = ProductModel.add(name, price, image);
+      const newProduct = await this.productRepo.add(name, Number(price), image);
       return res.status(201).send({
         msg: "Product added successfully",
         product: newProduct,
       });
     } catch (err) {
-      console.error("Error:", err);
+      throw err;
     }
   }
   getOneProduct(req, res) {

@@ -6,14 +6,14 @@ const productRouter = express.Router();
 
 const productController = new ProductController();
 
-productRouter.get("/", productController.getAllProducts);
+productRouter.get("/", (req, res) => {
+  productController.getAllProducts(req, res);
+});
 productRouter.post("/rate", productController.rateProduct);
 productRouter.get("/filter", productController.filterProducts);
 productRouter.get("/get/:id", productController.getOneProduct);
-productRouter.post(
-  "/add",
-  uploads.single("image"),
-  productController.addProduct
-);
+productRouter.post("/add", uploads.single("image"), (req, res) => {
+  productController.addProduct(req, res);
+});
 
 export default productRouter;
