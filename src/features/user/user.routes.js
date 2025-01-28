@@ -5,7 +5,9 @@ const userController = new UserController();
 
 const userRouter = express.Router();
 
-userRouter.get("/", userController.getUsers);
+userRouter.get("/", (req, res) => {
+  userController.getUsers(req, res);
+});
 userRouter.post("/signup", (req, res) => {
   userController.signUp(req, res);
 });

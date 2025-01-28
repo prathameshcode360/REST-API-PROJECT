@@ -23,4 +23,13 @@ export default class UserRepository {
       console.error("Error:", err);
     }
   }
+  async getAll() {
+    try {
+      const db = getDB();
+      const collection = db.collection("users");
+      return await collection.find().toArray();
+    } catch (err) {
+      console.error("Error:", err);
+    }
+  }
 }

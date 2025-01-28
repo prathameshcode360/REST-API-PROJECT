@@ -35,9 +35,9 @@ export default class UserController {
       console.error("Error:", err);
     }
   }
-  getUsers(req, res) {
+  async getUsers(req, res) {
     try {
-      let users = UserModel.getAll();
+      let users = await this.ueserRepo.getAll();
       return res.status(200).send(users);
     } catch (err) {
       console.error("Error:", err);
