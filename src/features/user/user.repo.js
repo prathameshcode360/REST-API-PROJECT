@@ -13,4 +13,14 @@ export default class UserRepository {
       console.error("Error:", err);
     }
   }
+  async login(email, password) {
+    try {
+      const db = getDB();
+      const collection = db.collection("users");
+      const user = await collection.findOne({ email, password });
+      return user;
+    } catch (err) {
+      console.error("Error:", err);
+    }
+  }
 }

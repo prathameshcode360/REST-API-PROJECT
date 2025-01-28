@@ -16,10 +16,10 @@ export default class UserController {
       console.error("Error", err);
     }
   }
-  signIn(req, res) {
+  async signIn(req, res) {
     try {
       const { email, password } = req.body;
-      const user = UserModel.login(email, password);
+      const user = await this.ueserRepo.login(email, password);
       if (!user) {
         return res.status(404).send({ msg: "user not found" });
       } else {
