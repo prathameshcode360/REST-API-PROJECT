@@ -58,4 +58,20 @@ export default class ProductRepo {
 
     return await collection.find(filterExpression).toArray();
   }
+  async rate(userId, productId, rating) {
+    try {
+      const db = getDB();
+      const collection = db.collection(this.collection);
+
+      // Use $push to add { userId, rating } as an object in the ratings array
+      await collection.updateOne(
+        { _id: new ObjectId(productId) },
+        {
+          $push: { ratings: { userId, rating } }, // Corrected here
+        }
+      );
+    } catch (err) {
+      console.error("Error:", err);
+    }
+  }
 }
