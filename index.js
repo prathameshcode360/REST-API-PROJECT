@@ -4,7 +4,7 @@ import productRouter from "./src/features/product/product.routes.js";
 import userRouter from "./src/features/user/user.routes.js";
 import cartRouter from "./src/features/cart/cart.routes.js";
 import jswtAuth from "./src/middlewares/jwtAuth.middleware.js";
-import connectToDb from "./src/config/mongodb.js";
+import { connectToDb } from "./src/config/mongodb.js";
 const app = express();
 
 app.use(bodyParser.json());
