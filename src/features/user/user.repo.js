@@ -29,4 +29,17 @@ export default class UserRepo {
       throw err;
     }
   }
+  async reset(userId, newPassword) {
+    try {
+      let user = await UserModel.findById(userId);
+      if (user) {
+        user.password = newPassword;
+        user.save();
+      } else {
+        throw new Error("user no found");
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
 }

@@ -55,4 +55,17 @@ export default class UserController {
       console.error("Error:", err);
     }
   }
+  async resetPassword(req, res, next) {
+    const { newPassword } = req.body;
+    const userId = req.userId;
+    const hashPassword = await bcrypt.hash(newPassword, 12);
+    try {
+      await this.userRepo.reset(userId, hashPassword);
+      return res
+        .status(200)
+        .send({ msg: "successfully reseted your password" });
+    } catch (err) {
+      throw err;
+    }
+  }
 }
