@@ -1,15 +1,20 @@
 import jwt from "jsonwebtoken";
-import UserRepository from "./user.repo.js";
+import UserRepo from "./user.repo.js";
 import bcrypt from "bcrypt";
 export default class UserController {
   constructor() {
-    this.userRepo = new UserRepository();
+    this.userRepo = new UserRepo();
   }
   async signUp(req, res) {
     try {
       const { name, email, password } = req.body;
       const hashPassword = await bcrypt.hash(password, 12);
-      const newUser = await this.userRepo.register(name, email, hashPassword);
+      const newUser = await this.userRepo.register({
+        name,
+        email,
+        password: hashPassword,
+      });
+
       return res
         .status(201)
         .send({ msg: "user added successfully", newUser: newUser });

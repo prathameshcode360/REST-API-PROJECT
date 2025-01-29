@@ -1,35 +1,32 @@
-import UserModel from "./user.model.js";
-import { getDB } from "../../config/mongodb.js";
+import mongoose from "mongoose";
+import { userSchema } from "./user.schema.js";
 
-export default class UserRepository {
-  async register(name, email, password) {
+const UserModel = mongoose.model("User", userSchema); // ✅ Fix: Remove `new`
+
+export default class UserRepo {
+  async register(userData) {
+    // Accepts user details
     try {
-      const db = getDB();
-      const collection = db.collection("users");
-      const newUser = new UserModel(name, email, password);
-      await collection.insertOne(newUser);
-      return newUser;
+      const newUser = new UserModel(userData); // ✅ Fix: Pass user data
+      await newUser.save();
+      return newUser; // Return created user (optional)
     } catch (err) {
-      console.error("Error:", err);
+      throw err;
     }
   }
+
   async login(email) {
     try {
-      const db = getDB();
-      const collection = db.collection("users");
-      const user = await collection.findOne({ email });
-      return user;
+      return await UserModel.findOne({ email });
     } catch (err) {
-      console.error("Error:", err);
+      throw err;
     }
   }
   async getAll() {
     try {
-      const db = getDB();
-      const collection = db.collection("users");
-      return await collection.find().toArray();
+      return await UserModel.find();
     } catch (err) {
-      console.error("Error:", err);
+      throw err;
     }
   }
 }
