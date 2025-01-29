@@ -36,24 +36,58 @@ export default class ProductRepo {
     }
   }
   async filter(minPrice, maxPrice, category) {
-    const db = getDB();
-    const collection = db.collection(this.collection);
-    const filterExpression = {};
+    try {
+      const db = getDB();
+      const collection = db.collection(this.collection);
+      const filterExpression = {};
 
-    // Combine minPrice and maxPrice in a single object for price
-    if (minPrice || maxPrice) {
-      filterExpression.price = {};
-      if (minPrice) {
-        filterExpression.price.$gte = parseFloat(minPrice);
+      // Combine minPrice and maxPrice in a single object for price
+      if (minPrice || maxPrice) {
+        filterExpression.price = {};
+        if (minPrice) {
+          filterExpression.price.$gte = parseFloat(minPrice);
+        }
+        if (maxPrice) {
+          filterExpression.price.$lte = parseFloat(maxPrice);
+        }
       }
-      if (maxPrice) {
-        filterExpression.price.$lte = parseFloat(maxPrice);
+      // Add category filter if provided
+      if (category) {
+        filterExpression.category = category;
       }
+      return await collection.find(filterExpression).toArray();
+    } catch (err) {
+      throw err;
     }
-    // Add category filter if provided
-    if (category) {
-      filterExpression.category = category;
+  }
+
+  async rate(productId, userId, rating) {
+    try {
+      const db = getDB();
+      const collection = db.collection(this.collection);
+
+      // Ensure valid ObjectId format for productId
+      const objectIdProduct = new ObjectId(productId);
+
+      // Attempt to update the product's rating
+      const result = await collection.updateOne(
+        { _id: objectIdProduct, "ratings.userId": userId }, // Match product and user
+        { $set: { "ratings.$.rating": rating } } // Update the rating for the matched user
+      );
+
+      // If no match was found, push a new rating
+      if (result.modifiedCount === 0) {
+        await collection.updateOne(
+          { _id: objectIdProduct },
+          { $push: { ratings: { userId, rating } } }
+        );
+      }
+
+      // Return the result of the update operation
+      return result;
+    } catch (err) {
+      console.error("Error in rate:", err);
+      throw err; // Rethrow the error to be caught in the controller
     }
-    return await collection.find(filterExpression).toArray();
   }
 }

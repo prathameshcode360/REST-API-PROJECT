@@ -32,7 +32,7 @@ export default class UserController {
       }
 
       const token = jwt.sign(
-        { userId: user.id, userEmail: user.email },
+        { userId: user._id, userEmail: user.email },
         "WgANnhixxHPT5dwHBjtIETIEGWDuGD5B",
         { expiresIn: "1h" }
       );

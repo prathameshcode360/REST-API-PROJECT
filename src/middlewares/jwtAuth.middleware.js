@@ -9,8 +9,8 @@ export default function jswtAuth(req, res, next) {
   try {
     const payload = jwt.verify(token, "WgANnhixxHPT5dwHBjtIETIEGWDuGD5B");
     req.userId = payload.userId;
+    next();
   } catch (err) {
     return res.status(401).send("unauthorized user");
   }
-  next();
 }
