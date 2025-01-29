@@ -1,24 +1,13 @@
 import UserModel from "../user/user.model.js";
 export default class ProductModel {
-  constructor(name, price, image, _id) {
+  constructor(name, price, image, category, _id) {
     this._id = _id;
     this.name = name;
     this.price = price;
     this.image = image;
+    this.category = category;
   }
 
-  static get(id) {
-    const product = products.find((p) => p.id == id);
-    return product;
-  }
-  static filter(minPrice, maxPrice) {
-    return products.filter((p) => {
-      return (
-        (minPrice === undefined || p.price >= minPrice) &&
-        (maxPrice === undefined || p.price <= maxPrice)
-      );
-    });
-  }
   static rate(userId, productId, rating) {
     // Checking if the user exists
     const user = UserModel.getAll().find((u) => u.id == userId);
