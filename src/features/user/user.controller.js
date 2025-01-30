@@ -8,20 +8,30 @@ export default class UserController {
   async signUp(req, res) {
     try {
       const { name, email, password } = req.body;
+
+      // Improved password regex (at least 8 chars, 1 uppercase, 1 lowercase, 1 number)
+      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
+      if (!passwordRegex.test(password)) {
+        return res.status(400).json({
+          msg: "Password must be at least 8 characters long, include at least one uppercase letter, one lowercase letter, and one number.",
+        });
+      }
+
       const hashPassword = await bcrypt.hash(password, 12);
+
       const newUser = await this.userRepo.register({
         name,
         email,
         password: hashPassword,
       });
 
-      return res
-        .status(201)
-        .send({ msg: "user added successfully", newUser: newUser });
+      return res.status(201).json({ msg: "User added successfully", newUser });
     } catch (err) {
-      console.error("Error", err);
+      console.error("Error:", err.message);
+      return res.status(400).json({ error: err.message });
     }
   }
+
   async signIn(req, res) {
     try {
       const { email, password } = req.body;

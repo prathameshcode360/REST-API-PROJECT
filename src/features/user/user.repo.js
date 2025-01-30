@@ -5,12 +5,15 @@ const UserModel = mongoose.model("User", userSchema); // ✅ Fix: Remove `new`
 
 export default class UserRepo {
   async register(userData) {
-    // Accepts user details
     try {
-      const newUser = new UserModel(userData); // ✅ Fix: Pass user data
+      const newUser = new UserModel(userData);
       await newUser.save();
-      return newUser; // Return created user (optional)
+      return newUser;
     } catch (err) {
+      if (err.name === "ValidationError") {
+        let messages = Object.values(err.errors).map((val) => val.message);
+        throw new Error(messages.join(", ")); // Combine multiple validation messages
+      }
       throw err;
     }
   }
