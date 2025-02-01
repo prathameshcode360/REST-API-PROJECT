@@ -1,6 +1,10 @@
-import ProductModel from "./product.model.js";
-import { getDB } from "../../config/mongodb.js";
-import { ObjectId } from "mongodb";
+import mongoose from "mongoose";
+import { productSchema } from "./product.schema.js";
+import { reviewSchema } from "./reviews.schemas.js";
+
+const ProductModel = mongoose.model("Product", productSchema);
+const ReviewModel = mongoose.model("Review", reviewSchema);
+
 export default class ProductRepo {
   constructor() {
     this.collection = "products";
@@ -63,31 +67,34 @@ export default class ProductRepo {
 
   async rate(productId, userId, rating) {
     try {
-      const db = getDB();
-      const collection = db.collection(this.collection);
-
-      // Ensure valid ObjectId format for productId
-      const objectIdProduct = new ObjectId(productId);
-
-      // Attempt to update the product's rating
-      const result = await collection.updateOne(
-        { _id: objectIdProduct, "ratings.userId": userId }, // Match product and user
-        { $set: { "ratings.$.rating": rating } } // Update the rating for the matched user
+      // 1. Check if the product exists
+      const productToRate = await ProductModel.findById(
+        new mongoose.Types.ObjectId(productId)
       );
-
-      // If no match was found, push a new rating
-      if (result.modifiedCount === 0) {
-        await collection.updateOne(
-          { _id: objectIdProduct },
-          { $push: { ratings: { userId, rating } } }
-        );
+      if (!productToRate) {
+        throw new Error("Product not found");
       }
 
-      // Return the result of the update operation
-      return result;
+      // 2. Get the existing review
+      const userReview = await ProductModel.findOne({
+        product: new mongoose.Types.ObjectId(productId),
+        user: new mongoose.Types.ObjectId(userId),
+      });
+
+      if (userReview) {
+        userReview.rating = rating;
+        await userReview.save();
+      } else {
+        const newReview = new ReviewModel({
+          product: new mongoose.Types.ObjectId(productId),
+          user: new mongoose.Types.ObjectId(userId),
+          rating: rating,
+        });
+        await newReview.save();
+      }
     } catch (err) {
       console.error("Error in rate:", err);
-      throw err; // Rethrow the error to be caught in the controller
+      throw err;
     }
   }
 }

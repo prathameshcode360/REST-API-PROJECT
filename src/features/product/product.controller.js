@@ -1,5 +1,4 @@
 import ProductRepo from "./product.repo.js";
-import ProductModel from "./product.model.js";
 
 export default class ProductController {
   constructor() {
@@ -73,29 +72,24 @@ export default class ProductController {
     try {
       const userId = req.userId; // Extracted from JWT
       const productId = req.query.productId; // Product ID from query
-      const rating = Number(req.query.rating); // Rating from query as a number
+      const rating = Number(req.query.rating); // Convert rating to number
 
-      // Validation: Check if any required parameters are missing or invalid
+      // Validation: Check if required parameters are missing or invalid
       if (!userId || !productId || isNaN(rating)) {
         return res.status(400).send({ msg: "Invalid request parameters" });
       }
 
-      // Call the repo function and get the result of the update operation
+      // Call the repo function and get the result
       const result = await this.productRepo.rate(productId, userId, rating);
 
-      // If a product was updated (modifiedCount > 0), return success
-      if (result.modifiedCount > 0) {
-        return res
-          .status(200)
-          .send({ msg: "Rating updated successfully", result });
-      } else {
-        // If no product was found or updated, return a not-found message
-        return res
-          .status(404)
-          .send({ msg: "Product not found or not updated" });
+      if (!result) {
+        return res.status(404).send({ msg: "Product not found" });
       }
+
+      return res
+        .status(200)
+        .send({ msg: "Rating updated successfully", result });
     } catch (err) {
-      // Log the error for debugging and send a generic server error message
       console.error("Error in rateProduct:", err);
       return res.status(500).send({ msg: "Internal Server Error" });
     }
